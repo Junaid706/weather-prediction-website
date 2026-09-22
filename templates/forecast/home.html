@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load weather_filters %}
+
+{% block title %}Home - WeatherPredict{% endblock %}
+
+{% block content %}
+<div class="text-center mb-5">
+    <h1 class="display-4 fw-bold">Weather Prediction System</h1>
+    <p class="lead">Get accurate weather forecasts and AI-powered predictions for any city worldwide.</p>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <form action="{% url 'forecast:weather_lookup' %}" method="GET" class="input-group input-group-lg shadow-sm">
+            <input type="text" name="city" class="form-control" placeholder="Enter city name..." required autocomplete="off">
+            <button type="submit" class="btn btn-primary">
+                <i class="bi bi-search"></i> Search
+            </button>
+        </form>
+    </div>
+</div>
+
+{% if recent_searches %}
+<div class="row justify-content-center mt-5">
+    <div class="col-md-8">
+        <h3>Recent Searches</h3>
+        <div class="list-group shadow-sm">
+            {% for search in recent_searches %}
+            <a href="{% url 'forecast:weather_lookup' %}?city={{ search.city.name }}" class="list-group-item list-group-item-action">
+                {{ search.city.name }}, {{ search.city.country }}
+                <span class="text-muted float-end small">{{ search.searched_at|date:"M d, Y H:i" }}</span>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<div class="row mt-5">
+    <div class="col-md-12">
+        <h3>Popular Cities</h3>
+        <div class="row row-cols-2 row-cols-md-4 g-3">
+            {% for city in popular_cities %}
+            <div class="col">
+                <div class="card h-100 shadow-sm hover-card">
+                    <div class="card-body text-center">
+                        <a href="{% url 'forecast:weather_lookup' %}?city={{ city.name }}" class="text-decoration-none">
+                            <h5 class="card-title">{{ city.name }}</h5>
+                            <p class="card-text text-muted">{{ city.country }}</p>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<div class="row mt-5">
+    <div class="col-md-12">
+        <div class="alert alert-info shadow-sm">
+            <i class="bi bi-info-circle"></i>
+            <strong>Demo Mode:</strong> This site uses simulated weather data. To use real data, integrate with a weather API like OpenWeatherMap by setting an API key in settings.py.
+        </div>
+    </div>
+</div>
+{% endblock %}

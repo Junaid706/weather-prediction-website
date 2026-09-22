@@ -1,0 +1,189 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load weather_filters %}
+
+{% block title %}AI Prediction - {{ city.name }} - WeatherPredict{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+    <a href="{% url 'forecast:weather_lookup' %}?city={{ city.name }}" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left"></i> Back to Weather
+    </a>
+    <span class="fw-bold fs-4">{{ city.name }}, {{ city.country }}</span>
+</div>
+
+<div class="row g-4 mb-4">
+    <div class="col-md-4">
+        <div class="card shadow-sm h-100">
+            <div class="card-body text-center">
+                <h5 class="card-title">Trend Analysis</h5>
+                <p class="display-6 fw-bold mb-0 {% if temp_trend == 'rising' %}text-danger{% else %}text-primary{% endif %}">
+                    <i class="bi {% if temp_trend == 'rising' %}bi-arrow-up{% else %}bi-arrow-down{% endif %}"></i>
+                    {{ temp_trend|title }} Trend
+                </p>
+                <p class="text-muted">Average temp difference: {{ trend_diff }}°C</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card shadow-sm h-100">
+            <div class="card-body text-center">
+                <h5 class="card-title">Hottest Day</h5>
+                <p class="display-6 fw-bold mb-0 text-warning">{{ hottest_day.predicted_temperature }}°C</p>
+                <p class="text-muted">{{ hottest_day.day }}, Day {{ hottest_day.days_ahead }}</p>
+                <p class="text-muted mb-0">Confidence: {{ hottest_day.confidence|mul:100|floatformat:0 }}%</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card shadow-sm h-100">
+            <div class="card-body text-center">
+                <h5 class="card-title">Coldest Day</h5>
+                <p class="display-6 fw-bold mb-0 text-info">{{ coldest_day.predicted_temperature }}°C</p>
+                <p class="text-muted">{{ coldest_day.day }}, Day {{ coldest_day.days_ahead }}</p>
+                <p class="text-muted mb-0">Confidence: {{ coldest_day.confidence|mul:100|floatformat:0 }}%</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-lg-8">
+        <div class="card shadow-sm">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0"><i class="bi bi-graph-up"></i> 7-Day Temperature Prediction</h5>
+            </div>
+            <div class="card-body">
+                <canvas id="predictionChart" height="300"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="card shadow-sm mb-3">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0"><i class="bi bi-list-ul"></i> Prediction Details</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-sm table-hover">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th class="text-end">Predicted</th>
+                                <th class="text-end">Confidence</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for p in predictions %}
+                            <tr>
+                                <td>{{ p.date }}<br><small class="text-muted">{{ p.day }}</small></td>
+                                <td class="text-end fw-bold">{{ p.predicted_temperature }}°C</td>
+                                <td class="text-end">{{ p.confidence|mul:100|floatformat:0 }}%</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-header bg-primary text-white">
+        <h5 class="mb-0"><i class="bi bi-clock-history"></i> Historical Data (Last 30 Days)</h5>
+    </div>
+    <div class="card-body">
+        <canvas id="historicalChart" height="200"></canvas>
+    </div>
+</div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const predictionCtx = document.getElementById('predictionChart').getContext('2d');
+    const historicalCtx = document.getElementById('historicalChart').getContext('2d');
+
+    const predictionData = {
+        labels: [{% for p in predictions %}'{{ p.day }}'{% if not loop.last %}, {% endif %}{% endfor %}],
+        temperatures: [{% for p in predictions %}{{ p.predicted_temperature }}{% if not loop.last %}, {% endif %}{% endfor %}],
+        confidences: [{% for p in predictions %}{{ p.confidence }}{% if not loop.last %}, {% endif %}{% endfor %}],
+    };
+
+    const historicalData = {
+        labels: [{% for h in historical %}'{{ h.date }}'{% if not loop.last %}, {% endif %}{% endfor %}],
+        temperatures: [{% for h in historical %}{{ h.temperature }}{% if not loop.last %}, {% endif %}{% endfor %}],
+    };
+
+    new Chart(predictionCtx, {
+        type: 'line',
+        data: {
+            labels: predictionData.labels,
+            datasets: [{
+                label: 'Predicted Temperature (°C)',
+                data: predictionData.temperatures,
+                borderColor: '#0d6efd',
+                backgroundColor: 'rgba(13, 110, 253, 0.1)',
+                tension: 0.3,
+                fill: true,
+                pointBackgroundColor: '#0d6efd',
+                pointRadius: 5,
+                pointHoverRadius: 8,
+            }, {
+                label: 'Confidence',
+                data: predictionData.confidences.map(c => c * 35),
+                borderColor: '#28a745',
+                backgroundColor: 'rgba(40, 167, 69, 0.1)',
+                tension: 0.3,
+                yAxisID: 'y1',
+                pointRadius: 0,
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { position: 'top' },
+                title: { display: false },
+            },
+            scales: {
+                y: {
+                    beginAtZero: false,
+                    title: { display: true, text: 'Temperature (°C)' },
+                },
+                y1: {
+                    position: 'right',
+                    grid: { drawOnChartArea: false },
+                    title: { display: true, text: 'Confidence' },
+                    max: 40,
+                    min: 70,
+                    ticks: { display: false },
+                }
+            }
+        }
+    });
+
+    new Chart(historicalCtx, {
+        type: 'bar',
+        data: {
+            labels: historicalData.labels,
+            datasets: [{
+                label: 'Historical Temperature (°C)',
+                data: historicalData.temperatures,
+                backgroundColor: 'rgba(255, 193, 7, 0.6)',
+                borderColor: '#ffc107',
+                borderWidth: 1,
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { display: false } },
+            scales: { y: { beginAtZero: false } },
+            indexAxis: 'y',
+        }
+    });
+});
+</script>
+{% endblock %}

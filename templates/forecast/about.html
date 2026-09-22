@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+
+{% block title %}About - WeatherPredict{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card shadow-sm">
+            <div class="card-body p-5">
+                <h1 class="display-5 fw-bold mb-4 text-center">About WeatherPredict</h1>
+
+                <div class="text-center mb-4">
+                    <i class="bi bi-cloud-sun-fill display-1 text-primary"></i>
+                </div>
+
+                <p class="lead text-center">An advanced weather prediction system powered by AI and machine learning.</p>
+
+                <hr class="my-4">
+
+                <h3 class="mt-4"><i class="bi bi-lightbulb"></i> Features</h3>
+                <ul class="list-group list-group-flush mb-4">
+                    <li class="list-group-item border-0"><strong>Current Weather:</strong> Real-time conditions including temperature, humidity, pressure, and wind data.</li>
+                    <li class="list-group-item border-0"><strong>5-Day Forecast:</strong> Extended forecast with high/low temperatures and confidence indicators.</li>
+                    <li class="list-group-item border-0"><strong>24-Hour Forecast:</strong> Hourly weather predictions.</li>
+                    <li class="list-group-item border-0"><strong>AI Prediction:</strong> Machine learning model (Polynomial Regression) predicts future temperatures based on historical patterns.</li>
+                    <li class="list-group-item border-0"><strong>Historical Data:</strong> 30-day historical temperature trends.</li>
+                    <li class="list-group-item border-0"><strong>Search History:</strong> Track your recent city searches.</li>
+                </ul>
+
+                <h3 class="mt-4"><i class="bi bi-github"></i> Technology Stack</h3>
+                <ul class="list-inline">
+                    <li class="list-inline-item"><span class="badge bg-secondary">Django 5.2</span></li>
+                    <li class="list-inline-item"><span class="badge bg-secondary">Python 3.12</span></li>
+                    <li class="list-inline-item"><span class="badge bg-secondary">scikit-learn</span></li>
+                    <li class="list-inline-item"><span class="badge bg-secondary">Bootstrap 5</span></li>
+                    <li class="list-inline-item"><span class="badge bg-secondary">Chart.js</span></li>
+                    <li class="list-inline-item"><span class="badge bg-secondary">SQLite</span></li>
+                </ul>
+
+                <h3 class="mt-4"><i class="bi bi-cog"></i> Data Source</h3>
+                <div class="alert alert-warning">
+                    <i class="bi bi-exclamation-triangle"></i>
+                    <strong>Demo Mode:</strong> This site currently uses simulated weather data for demonstration purposes. To use real weather data, integrate with a weather API (e.g., OpenWeatherMap, WeatherAPI) by adding an API key to your environment variables and updating the services.py module.
+                </div>
+
+                <p class="text-center text-muted mt-4 mb-0">
+                    &copy; 2025 WeatherPredict. Open source weather prediction system.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,114 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load weather_filters %}
+
+{% block title %}{{ city.name }} Weather - WeatherPredict{% endblock %}
+
+{% block content %}
+<div class="weather-header mb-4">
+    <div class="d-flex justify-content-between align-items-center">
+        <div>
+            <h1 class="display-5 fw-bold">{{ city.name }}, {{ city.country }}</h1>
+            <p class="text-muted">{{ current.day }}, {{ current.date }}</p>
+        </div>
+        <div class="text-end">
+            <a href="{% url 'forecast:prediction_city' city.name %}" class="btn btn-outline-primary">
+                <i class="bi bi-graph-up"></i> AI Prediction
+            </a>
+            <a href="{% url 'forecast:home' %}" class="btn btn-outline-secondary">
+                <i class="bi bi-house"></i> Home
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4 mb-4">
+    <div class="col-md-4">
+        <div class="card shadow-sm h-100">
+            <div class="card-body text-center">
+                <img src="https://openweathermap.org/img/wn/{{ current.icon }}@2x.png" alt="{{ current.description }}" class="weather-icon">
+                <h2 class="display-3 fw-bold mb-0">{{ current.temperature }}°C</h2>
+                <p class="text-muted mb-2">{{ current.description }}</p>
+                <p class="mb-0">Feels like {{ current.temperature_min }}° - {{ current.temperature_max }}°C</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card shadow-sm h-100">
+            <div class="card-body">
+                <h5 class="card-title mb-3"><i class="bi bi-droplet"></i> Details</h5>
+                <table class="table table-borderless table-sm">
+                    <tr><td>Humidity</td><td class="text-end fw-bold">{{ current.humidity }}%</td></tr>
+                    <tr><td>Pressure</td><td class="text-end fw-bold">{{ current.pressure }} hPa</td></tr>
+                    <tr><td>Wind</td><td class="text-end fw-bold">{{ current.wind_speed }} m/s</td></tr>
+                    <tr><td>Sunrise</td><td class="text-end fw-bold">06:30</td></tr>
+                    <tr><td>Sunset</td><td class="text-end fw-bold">18:45</td></tr>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card shadow-sm h-100">
+            <div class="card-body">
+                <h5 class="card-title mb-3"><i class="bi bi-clock"></i> Hourly Forecast</h5>
+                <div class="d-flex flex-wrap gap-2 justify-content-center">
+                    {% for h in hourly %}
+                    <div class="text-center flex-fill" style="min-width: 60px;">
+                        <small class="text-muted">{{ h.hour }}</small>
+                        <img src="https://openweathermap.org/img/wn/{{ h.icon }}.png" alt="" width="30" height="30">
+                        <div class="fw-bold small">{{ h.temperature }}°</div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card shadow-sm mb-4">
+    <div class="card-header bg-transparent">
+        <h4 class="mb-0"><i class="bi bi-calendar3"></i> 5-Day Forecast</h4>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Date</th>
+                        <th class="text-center">Icon</th>
+                        <th class="text-center">Condition</th>
+                        <th class="text-end">Min</th>
+                        <th class="text-end">Max</th>
+                        <th class="text-end">Humidity</th>
+                        <th class="text-end">Wind</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for f in forecast %}
+                    <tr>
+                        <td>{{ f.day }}, {{ f.date }}</td>
+                        <td class="text-center">
+                            {% if f.confidence %}
+                                <span class="badge bg-info text-dark">{{ f.confidence|mul:100|floatformat:0 }}%</span>
+                            {% endif %}
+                            <img src="https://openweathermap.org/img/wn/{{ f.icon }}.png" alt="{{ f.description }}" width="40" height="40">
+                        </td>
+                        <td>{{ f.description }}</td>
+                        <td class="text-end">{{ f.temperature_min }}°C</td>
+                        <td class="text-end fw-bold">{{ f.temperature_max }}°C</td>
+                        <td class="text-end">{{ f.humidity }}%</td>
+                        <td class="text-end">{{ f.wind_speed }} m/s</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="text-center">
+    <a href="{% url 'forecast:prediction_city' city.name %}" class="btn btn-primary btn-lg">
+        <i class="bi bi-graph-up-arrow"></i> View AI Temperature Prediction
+    </a>
+</div>
+{% endblock %}
