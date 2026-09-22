@@ -33,7 +33,8 @@ BASE_TEMPS_BY_COUNTRY = {
     'US': 15,
     'CA': 5,
     'GB': 8,
-    'IN': 25,
+    'IN': 26,
+    'BD': 26,
     'BR': 25,
     'AU': 18,
     'JP': 15,
@@ -71,6 +72,10 @@ DEFAULT_CITIES = [
     ('Amsterdam', 'GB', 52.37, 4.90, 1),
     ('Madrid', 'ES', 40.42, -3.70, 1),
     ('Rome', 'IT', 41.90, 12.49, 1),
+    ('Dhaka', 'BD', 23.81, 90.41, 6),
+    ('Chittagong', 'BD', 22.34, 91.79, 6),
+    ('Khulna', 'BD', 22.83, 89.56, 6),
+    ('Sylhet', 'BD', 24.90, 91.87, 6),
 ]
 
 
@@ -111,6 +116,14 @@ def populate_default_cities():
         )
 
 
+SEASONAL_OFFSETS = {
+    'winter': -8,
+    'spring': 5,
+    'summer': 10,
+    'autumn': -3,
+}
+
+
 def _get_season(date: datetime) -> str:
     month = date.month
     if month in [12, 1, 2]:
@@ -123,14 +136,22 @@ def _get_season(date: datetime) -> str:
         return 'autumn'
 
 
+def _get_latitude_factor(latitude: float) -> float:
+    abs_lat = abs(latitude)
+    if abs_lat > 40:
+        return 1.0
+    elif abs_lat > 25:
+        return 0.7
+    else:
+        return 0.4
+
+
 def _get_base_temp(city: City, date: datetime) -> float:
     country_base = BASE_TEMPS_BY_COUNTRY.get(city.country, BASE_TEMPS_BY_COUNTRY['default'])
     season = _get_season(date)
-    seasonal = SEASONAL_BASE_TEMPS[season]
-    base = (seasonal['min'] + seasonal['max']) / 2
-    temp_range = seasonal['max'] - seasonal['min']
-    country_adjust = (country_base - BASE_TEMPS_BY_COUNTRY['default']) / 10
-    return base + country_adjust
+    offset = SEASONAL_OFFSETS[season]
+    lat_factor = _get_latitude_factor(float(city.latitude)) if city.latitude else 1.0
+    return country_base + offset * lat_factor
 
 
 def generate_mock_weather(city: City, date: datetime, is_forecast: bool = False) -> dict:
