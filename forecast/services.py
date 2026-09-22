@@ -76,6 +76,19 @@ DEFAULT_CITIES = [
     ('Chittagong', 'BD', 22.34, 91.79, 6),
     ('Khulna', 'BD', 22.83, 89.56, 6),
     ('Sylhet', 'BD', 24.90, 91.87, 6),
+    ('Rajshahi', 'BD', 24.37, 88.61, 6),
+    ('Barisal', 'BD', 22.70, 90.36, 6),
+    ('Rangpur', 'BD', 25.74, 89.27, 6),
+    ('Mymensingh', 'BD', 24.75, 90.43, 6),
+    ('Gazipur', 'BD', 23.93, 90.71, 6),
+    ('Narayanganj', 'BD', 23.63, 90.51, 6),
+    ('Comilla', 'BD', 23.43, 91.14, 6),
+    ('Rangamati', 'BD', 22.90, 92.72, 6),
+    ('Tungi', 'BD', 24.26, 90.66, 6),
+    ('Brahmanbaria', 'BD', 23.91, 91.45, 6),
+    ('Pabna', 'BD', 24.01, 89.24, 6),
+    ('Kushtia', 'BD', 23.90, 89.11, 6),
+    ('Jashore', 'BD', 23.16, 89.21, 6),
 ]
 
 
